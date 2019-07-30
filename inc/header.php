@@ -8,7 +8,6 @@ if(isset($_SESSION['name'])) {
     if($sql->num_rows > 0) {
         $data = $sql->fetch_array();
         if(!password_verify($password, $data['password'])) {
-            //echo 'hello';
             header("location:login.php");
         }
     } else {
@@ -16,7 +15,6 @@ if(isset($_SESSION['name'])) {
     }
 } else {
     header("location:login.php");
-    //echo 'pina';
 }
 
 ?>
