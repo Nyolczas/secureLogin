@@ -4,19 +4,17 @@ $msg = '';
 if(isset($_POST['submit'])) {
     $con = new mysqli( 'localhost', 'root','', 'passwordHashing');
 
+    $name = $con->real_escape_string($_POST['name']);
     $email = $con->real_escape_string($_POST['email']);
     $password = $con->real_escape_string($_POST['password']);
-   
-    $sql = $con->query("SELECT id, password FROM users WHERE email='$email'");
-    if($sql->num_rows > 0) {
-        $data = $sql->fetch_array();
-        if(password_verify($password, $data['password'])) {
-            $msg = '<h5 class="m-5 text-center alert alert-success"> Sikeresen bejelentkeztél! </h5>';
-        } else {
-            $msg = '<h5 class="m-5 text-center alert alert-danger"> Ellenőrizd a megadott adataidat! </h5>';
-        }
+    $cPassword = $con->real_escape_string($_POST['cPassword']);
+
+    if($password != $cPassword) {
+        $msg = '<h5 class="m-5 text-center alert alert-danger"> Kérlek ellenőrizd a jelszavadat! </h5>';
     } else {
-        $msg = '<h5 class="m-5 text-center alert alert-danger"> Ellenőrizd a megadott adataidat! </h5>';
+        $hash = password_hash($password, PASSWORD_BCRYPT);
+        $con->query("INSERT INTO users (name,email,password) VALUES ('$name', '$email', '$hash')");
+        $msg = '<h5 class="m-5 text-center alert alert-success"> Sikeresen regisztráltál! </h5>';
     }
 }
 ?>
@@ -36,10 +34,12 @@ if(isset($_POST['submit'])) {
       <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-md-offset-3">
-                <form method="post" action="login.php">
+                <form method="post" action="register.php">
+                    <input class="form-control" type="text" minlength="3" name="name" placeholder="Név..."><br>    
                     <input class="form-control" type="email" name="email" placeholder="Email..."><br>        
-                    <input class="form-control" type="password" minlength="5" name="password" placeholder="Jelszó..."><br>             
-                    <button class="btn btn-lg btn-success btn-block" type="submit" name="submit">Bejelentkezés</button>        
+                    <input class="form-control" type="password" minlength="5" name="password" placeholder="Jelszó..."><br>        
+                    <input class="form-control" type="password" minlength="5" name="cPassword" placeholder="Jelszó ismét..."><br>        
+                    <button class="btn btn-lg btn-success btn-block" type="submit" name="submit">Regisztráció</button>        
                     <?php if($msg != '') echo $msg; ?>
                 </form>
             </div>
