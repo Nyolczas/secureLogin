@@ -4,14 +4,18 @@ $msg = '';
 if(isset($_POST['submit'])) {
     $con = new mysqli( 'localhost', 'root','', 'passwordHashing');
 
-    $email = $con->real_escape_string($_POST['email']);
+    $name = $con->real_escape_string($_POST['name']);
     $password = $con->real_escape_string($_POST['password']);
    
-    $sql = $con->query("SELECT id, password FROM users WHERE email='$email'");
+    $sql = $con->query("SELECT id, password FROM users WHERE name='$name'");
     if($sql->num_rows > 0) {
         $data = $sql->fetch_array();
         if(password_verify($password, $data['password'])) {
             $msg = '<h5 class="m-5 text-center alert alert-success"> Sikeresen bejelentkeztél! </h5>';
+            session_start();
+            $_SESSION['name'] = htmlentities($name);
+            $_SESSION['password'] = htmlentities($_POST['password']);
+            header("location:index.php");
         } else {
             $msg = '<h5 class="m-5 text-center alert alert-danger"> Ellenőrizd a megadott adataidat! </h5>';
         }
@@ -37,7 +41,7 @@ if(isset($_POST['submit'])) {
         <div class="row justify-content-center">
             <div class="col-md-6 col-md-offset-3">
                 <form method="post" action="login.php">
-                    <input class="form-control" type="email" name="email" placeholder="Email..."><br>        
+                    <input class="form-control" type="text" minlength="3" name="name" placeholder="Név..."><br>     
                     <input class="form-control" type="password" minlength="5" name="password" placeholder="Jelszó..."><br>             
                     <button class="btn btn-lg btn-success btn-block" type="submit" name="submit">Bejelentkezés</button>        
                     <?php if($msg != '') echo $msg; ?>
